@@ -1,14 +1,15 @@
-import { spawn } from 'child_process';
-const RESTART_AFTER = 3000;
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
 export interface ProcessConfiguration {
   name: string;
   script: string;
   args?: string[];
+  cwd?: string;
+  restartAfter: number;
 }
 
-const escapeHTML = (str) =>
-  str.replace(
+const escapeHTML = (str: string) =>
+  (str || '').replace(
     /[&<>'"\n]/g,
     (tag) =>
       ({
@@ -23,31 +24,48 @@ const escapeHTML = (str) =>
 
 export class Process {
   output = '';
+  handle: ChildProcessWithoutNullStreams;
 
   constructor(private config: ProcessConfiguration) {
     this.startProcess();
   }
+
   startProcess() {
-    this.output = `<span class="info">App start ${escapeHTML(
+    this.output += `<span class="info">App start ${escapeHTML(
       this.config.name,
     )}</span><br/>`;
 
-    const p = spawn(this.config.script, this.config.args || [], {
+    this.handle = spawn(this.config.script, this.config.args || [], {
       shell: true,
+      cwd: this.config.cwd,
     });
 
-    p.stdout.on('data', (data) => {
-      this.output += `<span class="log">${escapeHTML(data)}</span>`;
-      console.log(data);
+    this.handle.stdout.on('data', (data: Buffer) => {
+      this.output += `<span class="log">${escapeHTML(data.toString())}</span>`;
+      console.log(data.toString());
     });
 
-    p.stderr.on('data', (data) => {
-      this.output += `<span class="error">${escapeHTML(data)}</span>`;
-      console.error(`stderr: ${data}`);
+    this.handle.stderr.on('data', (data: Buffer) => {
+      this.output += `<span class="error">${escapeHTML(
+        data.toString(),
+      )}</span>`;
+      console.error(`ERR: ${data.toString()}`);
     });
 
-    p.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
+    this.handle.on('close', (code) => {
+      console.error(`child process exited with code ${code}`);
+      setTimeout(() => {
+        this.startProcess();
+      }, this.config.restartAfter);
     });
+  }
+
+  killProcess() {
+    if (this.handle) {
+      this.handle.kill('SIGTERM');
+      setTimeout(() => {
+        this.handle.kill('SIGKILL');
+      }, 10000);
+    }
   }
 }

@@ -6,13 +6,19 @@
   <title>Process list</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Alexey Petushkov">
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+  .title {font-size: 2rem; background: #a3a3d6;padding: 8px;}
+  .log {margin-bottom: 20px;}
+
+  </style>
 </head>
 
 <body>
-  Index
-<script>
-</script>
-
+  {{#processes}}
+    <div class="title"><a href="/service/{{config.name}}">{{config.name}}</a></div>
+    <div class="log">
+      {{{output}}}
+    </div>
+  {{/processes}}
 </body>
 </html>

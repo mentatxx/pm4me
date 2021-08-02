@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { readFile } from 'fs/promises';
-import mustache from 'mustache';
+import { render } from 'mustache';
 import { resolve } from 'path';
 
 @Injectable()
@@ -22,10 +22,10 @@ export class RenderService {
   }
 
   renderIndex(data: any) {
-    return mustache.render(this.indexTemplate, data);
+    return render(this.indexTemplate, data);
   }
 
   renderService(data: any) {
-    return mustache.render(this.serviceTemplate, data);
+    return render(this.serviceTemplate, data);
   }
 }
