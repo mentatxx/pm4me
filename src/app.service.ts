@@ -49,7 +49,7 @@ export class AppService {
     }
     const names = new Set<string>();
     this.config.services.forEach((service: ProcessConfiguration) => {
-      ['name', 'script'].forEach((key: string) => {
+      ['name'].forEach((key: string) => {
         if (typeof service[key] === 'undefined') {
           throw new Error(`Missing ${key} in ${JSON.stringify(service)}`);
         }
