@@ -69,4 +69,12 @@ export class AppService {
       processes: Object.values(this.processes),
     };
   }
+
+  kill(name: string) {
+    if (!this.processes[name]) {
+      throw new Error('Process not found');
+    }
+    const p = this.processes[name];
+    p.killProcess();
+  }
 }
