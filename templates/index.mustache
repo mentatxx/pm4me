@@ -34,7 +34,7 @@
 
 <body>
   {{#processes}}
-    <div class="process {{^handle}} inactive{{/handle}}">
+    <div id="{{config.name}}" class="process {{^handle}} inactive{{/handle}}">
       <div class="title"><a href="/service/{{config.name}}">{{config.name}}</a></div>
       <div class="log">
         {{{output}}}
@@ -43,7 +43,18 @@
   {{/processes}}
   <script>
     // Reload page
-    setTimeout(() => {window.location.reload(false); }, 30000);
+    const socket = new WebSocket('ws://localhost:{{port}}');
+    socket.addEventListener('updated', function ({ service, updatedAfter }) {
+        fetch(`/service/${service}/partial?updatedAfter=${updatedAfter}`)
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            const {content} = data;
+            console.log('Content updated', content);
+          });
+        console.log('Message from server ', event.data);
+    });
   </script>
 </body>
 </html>

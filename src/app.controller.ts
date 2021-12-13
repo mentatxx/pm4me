@@ -1,4 +1,10 @@
-import { BadRequestException, Controller, Get, Param } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { RenderService } from './render.service';
 
@@ -22,5 +28,18 @@ export class AppController {
       throw new BadRequestException('Invalid service name');
     }
     return this.render.renderService(data);
+  }
+
+  @Get('service/:name/partial')
+  getServicePartial(
+    @Param('name') name: string,
+    @Query('updatedAfter') updAfter: string,
+  ) {
+    const updatedAfter = isNaN(+updAfter) ? 0 : +updAfter;
+    const content = this.appService.getPartialOutput(name, updatedAfter);
+    if (!content) {
+      throw new BadRequestException('Invalid service name');
+    }
+    return { content };
   }
 }

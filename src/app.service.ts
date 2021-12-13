@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { readFile } from 'fs/promises';
-import { EnvService } from './env/env.service';
+import { ArgumentsService } from './arguments/arguments.service';
+import { PORT } from './environment/environment';
+import { EventsGateway } from './events.gateway';
 import { Process, ProcessConfiguration } from './process';
 
 @Injectable()
@@ -8,7 +10,7 @@ export class AppService {
   private config: any;
   private processes: Record<string, Process> = {};
 
-  constructor(private env: EnvService) {}
+  constructor(private args: ArgumentsService, private events: EventsGateway) {}
 
   serviceData(name: string) {
     if (!this.processes[name]) {
@@ -17,13 +19,24 @@ export class AppService {
     return this.processes[name];
   }
 
+  getPartialOutput(name: string, updatedAfter: number) {
+    if (!this.processes[name]) {
+      return null;
+    }
+    return this.processes[name].output.slice(updatedAfter);
+  }
+
   async loadConfiguration() {
-    const configName = this.env.configName;
+    const configName = this.args.configName;
     try {
       this.config = JSON.parse((await readFile(configName)).toString());
       this.validateConfiguration();
       this.config.services.forEach((service: any) => {
-        this.processes[service.name] = new Process(service);
+        const process = new Process(service);
+        process.events.addListener('data', (updatedAfter: string) =>
+          this.events.logUpdated(service.name, updatedAfter),
+        );
+        this.processes[service.name] = process;
       });
     } catch (error) {
       console.error(
@@ -58,7 +71,7 @@ export class AppService {
         throw new Error(`Duplicate ${service.name}`);
       }
       if (typeof service.restartAfter !== 'number') {
-        service.restartAfter = this.env.restartAfter;
+        service.restartAfter = this.args.restartAfter;
       }
       names.add(service.name);
     });
@@ -67,6 +80,7 @@ export class AppService {
   dashboardData() {
     return {
       processes: Object.values(this.processes),
+      port: PORT,
     };
   }
 }

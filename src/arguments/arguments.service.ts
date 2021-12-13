@@ -4,7 +4,7 @@ import { program } from 'commander';
 const DEFAULT_RESTART_AFTER = 3000;
 
 @Injectable()
-export class EnvService {
+export class ArgumentsService {
   options = null;
 
   setup() {

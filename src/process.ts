@@ -1,4 +1,5 @@
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import EventEmitter from 'events';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Convert = require('ansi-to-html');
 const convert = new Convert();
@@ -24,10 +25,10 @@ const escapeHTML = (str: string) =>
         '\n': '<br/>',
       }[tag]),
   );
-
 export class Process {
   output = '';
   handle: ChildProcessWithoutNullStreams;
+  events = new EventEmitter();
 
   constructor(private config: ProcessConfiguration) {
     this.preStartProcess();
@@ -37,19 +38,19 @@ export class Process {
   }
 
   private applyBindings() {
-    this.handle.stdout.on('data', (data: Buffer) => {
-      this.output += `<span class="log">${convert.toHtml(
-        escapeHTML(data.toString()),
-      )}</span>`;
-      console.log(data.toString());
-    });
-
-    this.handle.stderr.on('data', (data: Buffer) => {
-      this.output += `<span class="error">${convert.toHtml(
-        escapeHTML(data.toString()),
-      )}</span>`;
-      console.error(`ERR: ${data.toString()}`);
-    });
+    const logHandler =
+      (htmlClass: string, consoleHandler: 'log' | 'error') =>
+      (data: Buffer) => {
+        const plainText = data.toString();
+        const outputLength = this.output.length;
+        this.output += `<span class="${htmlClass}">${convert.toHtml(
+          escapeHTML(plainText),
+        )}</span>`;
+        console[consoleHandler](plainText);
+        this.events.emit('data', String(outputLength));
+      };
+    this.handle.stdout.on('data', logHandler('log', 'log'));
+    this.handle.stderr.on('data', logHandler('error', 'error'));
 
     this.handle.on('close', (code) => {
       console.error(`child process exited with code ${code}`);
@@ -80,10 +81,14 @@ export class Process {
     )}</span><br/>`;
 
     if (this.config.script) {
-      this.handle = spawn(this.config.script, this.config.args || [], {
-        shell: true,
-        cwd: this.config.cwd,
-      });
+      this.handle = spawn(
+        'cmd.exe',
+        ['/c', this.config.script, ...this.config.args],
+        {
+          shell: true,
+          cwd: this.config.cwd,
+        },
+      );
 
       this.applyBindings();
     }
