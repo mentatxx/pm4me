@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';

@@ -1,5 +1,6 @@
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import EventEmitter from 'events';
+import * as EventEmitter from 'events';
+import { platform } from 'os';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Convert = require('ansi-to-html');
 const convert = new Convert();
@@ -81,15 +82,21 @@ export class Process {
     )}</span><br/>`;
 
     if (this.config.script) {
-      this.handle = spawn(
-        'cmd.exe',
-        ['/c', this.config.script, ...this.config.args],
-        {
-          shell: true,
-          cwd: this.config.cwd,
-        },
-      );
-
+      switch (platform()) {
+        // Win64/Win32
+        case 'win32':
+          this.handle = spawn(
+            'cmd.exe',
+            ['/c', this.config.script, ...(this.config.args || [])],
+            {
+              shell: true,
+              cwd: this.config.cwd,
+            },
+          );
+          break;
+        default:
+          throw new Error('Sorry, this architecture is not supported yet');
+      }
       this.applyBindings();
     }
   }
