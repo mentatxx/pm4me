@@ -10,7 +10,12 @@
 </head>
 
 <body>
-  Service
+  Service {{ name }}
+  <code>{{ script }}</code>
+  <form method="post">
+    <input type="hidden" name="kill" value="1" />
+    <button type="submit">Kill</button>
+  </form>
 <script>
 </script>
 

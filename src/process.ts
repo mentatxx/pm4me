@@ -96,10 +96,15 @@ export class Process {
 
   killProcess() {
     if (this.handle) {
-      this.handle.kill('SIGTERM');
-      setTimeout(() => {
-        this.handle.kill('SIGKILL');
-      }, 10000);
+      const handle = this.handle;
+      if (process.platform === 'win32') {
+        spawn('taskkill', ['/pid', handle.pid + '', '/f', '/t']);
+      } else {
+        handle.kill('SIGTERM');
+        setTimeout(() => {
+          handle.kill('SIGKILL');
+        }, 10000);
+      }
     }
   }
 }
