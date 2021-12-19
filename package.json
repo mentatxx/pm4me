@@ -2,9 +2,9 @@
   "name": "pm4me",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Alexey Petushkov <mentatxx@gmail.com>",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bin": {
     "pm4me": "./dist/main.js"
   },
