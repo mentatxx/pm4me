@@ -66,14 +66,10 @@ export class Process {
     switch (platform()) {
       // Win64/Win32
       case 'win32':
-        return spawn(
-          'cmd.exe',
-          ['/c', script, ...(args || [])],
-          {
-            shell: true,
-            cwd,
-          },
-        );
+        return spawn('cmd.exe', ['/c', script, ...(args || [])], {
+          shell: true,
+          cwd,
+        });
         break;
       case 'linux':
       case 'darwin':
@@ -97,7 +93,11 @@ export class Process {
         this.config.name,
       )} - ${escapeHTML(this.config.preStart)}</span><br/>`;
 
-      this.handle = this.spawnProcess(this.config.preStart, [], this.config.cwd);
+      this.handle = this.spawnProcess(
+        this.config.preStart,
+        [],
+        this.config.cwd,
+      );
       this.applyBindings();
     }
   }
@@ -108,7 +108,11 @@ export class Process {
     )}</span><br/>`;
 
     if (this.config.script) {
-      this.handle = this.spawnProcess(this.config.script, (this.config.args || []), this.config.cwd);
+      this.handle = this.spawnProcess(
+        this.config.script,
+        this.config.args || [],
+        this.config.cwd,
+      );
       this.applyBindings();
     }
   }
