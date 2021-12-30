@@ -62,16 +62,42 @@ export class Process {
     });
   }
 
+  private spawnProcess(script: string, args: any[], cwd: string | undefined) {
+    switch (platform()) {
+      // Win64/Win32
+      case 'win32':
+        return spawn(
+          'cmd.exe',
+          ['/c', script, ...(args || [])],
+          {
+            shell: true,
+            cwd,
+          },
+        );
+        break;
+      case 'linux':
+      case 'darwin':
+        return spawn(
+          '/bin/sh',
+          ['-c', `'${script} ${(args || []).join(' ')}'`],
+          {
+            shell: true,
+            cwd,
+          },
+        );
+        break;
+      default:
+        throw new Error('Sorry, this architecture is not supported yet');
+    }
+  }
+
   preStartProcess() {
     if (this.config.preStart) {
       this.output += `<span class="info">Pre start ${escapeHTML(
         this.config.name,
       )} - ${escapeHTML(this.config.preStart)}</span><br/>`;
 
-      this.handle = spawn(this.config.preStart, [], {
-        shell: true,
-        cwd: this.config.cwd,
-      });
+      this.handle = this.spawnProcess(this.config.preStart, [], this.config.cwd);
       this.applyBindings();
     }
   }
@@ -82,21 +108,7 @@ export class Process {
     )}</span><br/>`;
 
     if (this.config.script) {
-      switch (platform()) {
-        // Win64/Win32
-        case 'win32':
-          this.handle = spawn(
-            'cmd.exe',
-            ['/c', this.config.script, ...(this.config.args || [])],
-            {
-              shell: true,
-              cwd: this.config.cwd,
-            },
-          );
-          break;
-        default:
-          throw new Error('Sorry, this architecture is not supported yet');
-      }
+      this.handle = this.spawnProcess(this.config.script, (this.config.args || []), this.config.cwd);
       this.applyBindings();
     }
   }
