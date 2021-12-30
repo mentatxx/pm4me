@@ -1,9 +1,8 @@
 {
   "name": "pm4me",
   "version": "0.0.1",
-  "description": "",
+  "description": "Simple process manager",
   "author": "Alexey Petushkov <mentatxx@gmail.com>",
-  "private": true,
   "license": "MIT",
   "bin": {
     "pm4me": "./dist/main.js"
