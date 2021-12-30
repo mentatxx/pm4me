@@ -1,6 +1,6 @@
 {
   "name": "pm4me",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Simple process manager",
   "author": "Alexey Petushkov <mentatxx@gmail.com>",
   "license": "MIT",
@@ -10,6 +10,7 @@
   "scripts": {
     "rimraf": "rimraf",
     "prebuild": "rimraf dist",
+    "prepare": "npm run build",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
