@@ -10,10 +10,10 @@ export class RenderService {
 
   async loadTemplates() {
     this.indexTemplate = await this.loadTemplate(
-      resolve(__dirname, '../templates/index.mustache'),
+      resolve(__dirname, '../../templates/index.mustache'),
     );
     this.serviceTemplate = await this.loadTemplate(
-      resolve(__dirname, '../templates/service.mustache'),
+      resolve(__dirname, '../../templates/service.mustache'),
     );
   }
 

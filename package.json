@@ -1,11 +1,11 @@
 {
   "name": "pm4me",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Simple process manager",
   "author": "Alexey Petushkov <mentatxx@gmail.com>",
   "license": "MIT",
   "bin": {
-    "pm4me": "./dist/main.js"
+    "pm4me": "./dist/src/main.js"
   },
   "scripts": {
     "rimraf": "rimraf",
