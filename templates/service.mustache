@@ -7,15 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Alexey Petushkov">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+  .log {margin-bottom: 20px;}
+  </style>
 </head>
 
 <body>
   Service {{ name }}
-  <code>{{ script }}</code>
   <form method="post">
     <input type="hidden" name="kill" value="1" />
     <button type="submit">Kill</button>
   </form>
+  <br />
+  <code class="log">
+    {{{output}}}
+  </code>
 <script>
 </script>
 
